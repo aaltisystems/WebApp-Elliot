@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panel de Eliot</title>
+    <!-- Script oficial de Telegram Web App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Variables automáticas de Telegram para que se adapte al modo oscuro/claro */
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #f3f4f6);
+            --text-color: var(--tg-theme-text-color, #1f2937);
+            --hint-color: var(--tg-theme-hint-color, #6b7280);
+            --button-color: var(--tg-theme-button-color, #3b82f6);
+            --button-text-color: var(--tg-theme-button-text-color, #ffffff);
+            --card-bg-color: var(--tg-theme-secondary-bg-color, #ffffff);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 16px;
+        }
+
+        /* Encabezado */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            margin-top: 10px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .header p {
+            font-size: 14px;
+            color: var(--hint-color);
+            margin-top: 5px;
+        }
+
+        /* Tarjetas de sección */
+        .section-card {
+            background-color: var(--card-bg-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Botones */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .btn {
+            background-color: var(--button-color);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn:active {
+            opacity: 0.7;
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--button-color);
+            border: 2px solid var(--button-color);
+        }
+
+        /* Lista de APIs */
+        .api-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+            font-size: 14px;
+        }
+        .api-item:last-child {
+            border-bottom: none;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #10b981; /* Verde */
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🤖 Cerebro de Eliot</h1>
+        <p>Tu asistente personal inteligente</p>
+    </div>
+
+    <!-- SECCIÓN 1: Personalidad -->
+    <div class="section-card">
+        <div class="section-title">🧠 Modo de Personalidad</div>
+        <div class="grid-2">
+            <button class="btn btn-outline" onclick="enviarAccion('modo_trabajo')">
+                <span>💼</span> Trabajo
+            </button>
+            <button class="btn btn-outline" onclick="enviarAccion('modo_amigo')">
+                <span>🍻</span> Amigo
+            </button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: Habilidades rápidas -->
+    <div class="section-card">
+        <div class="section-title">⚡ Acciones Rápidas</div>
+        <div class="grid-2">
+            <button class="btn" onclick="enviarAccion('cmd_crear_archivo')">
+                📄 Crear Archivo
+            </button>
+            <button class="btn" onclick="enviarAccion('cmd_resumir_texto')">
+                ✂️ Resumir
+            </button>
+            <button class="btn" onclick="enviarAccion('cmd_buscar_info')">
+                🔍 Buscar Info
+            </button>
+            <button class="btn" onclick="enviarAccion('cmd_recordatorio')">
+                ⏰ Recordatorio
+            </button>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: Estado de Conexiones -->
+    <div class="section-card">
+        <div class="section-title">🔌 Conexiones (APIs)</div>
+        <div class="api-item">
+            <span>OpenAI (ChatGPT)</span>
+            <span class="status-badge"><div class="status-dot"></div> Conectado</span>
+        </div>
+        <div class="api-item">
+            <span>Google Drive</span>
+            <span class="status-badge"><div class="status-dot"></div> Conectado</span>
+        </div>
+    </div>
+
+    <script>
+        // Inicializar Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        
+        // Expandir la app para que ocupe toda la pantalla
+        tg.expand();
+        
+        // Indicarle a Telegram que la app ya está lista para mostrarse
+        tg.ready();
+
+        // Función principal para enviar datos al bot en Python
+        function enviarAccion(accion) {
+            // Vibra un poco el móvil al tocar (Haptic Feedback)
+            tg.HapticFeedback.impactOccurred('light');
+            
+            // Envía el texto oculto a tu bot
+            tg.sendData(accion);
+            
+            // Cierra la ventana web para volver al chat inmediatamente
+            tg.close();
+        }
+    </script>
+</body>
+</html>
